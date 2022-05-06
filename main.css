@@ -1,0 +1,49 @@
+#info {
+  position: absolute;
+  color: white;
+  top: 0px;
+  width: 80%;
+  height: 80%;
+  padding: 0px;
+  box-sizing: border-box;
+  text-align: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#menu {
+  position: absolute;
+  color: white;
+  top: 0px;
+  width: 80%;
+  height: 80%;
+  padding-top: 30px;
+  box-sizing: border-box;
+  text-align: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#threejs-canvas {
+  position: absolute;
+  top: 0px;
+  color: white;
+  width: 80%;
+  height: 80%;
+  box-sizing: border-box;
+  text-align: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
