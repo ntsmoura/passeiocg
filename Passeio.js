@@ -36,7 +36,7 @@ const rendSize = new THREE.Vector2();
 /// ***************************************************************
 
 function main() {
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({ logarithmicDepthBuffer: true });
 
   renderer.setClearColor(new THREE.Color(0.0, 0.0, 0.0));
 
