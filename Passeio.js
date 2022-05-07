@@ -470,7 +470,7 @@ function render() {
     try {
       //console.log(camera.position.x, camera.position.y, camera.position.z);
       if ((typeCamera == "A pé") & camControl.isLocked) {
-        const movement = 30.0;
+        const movement = 170 * delta;
         if (moveForward) camControl.moveForward(movement);
         if (moveBackward) camControl.moveForward(-movement);
         if (moveLeft) camControl.moveRight(-movement);
