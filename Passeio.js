@@ -433,18 +433,19 @@ function initCameraVisita() {
 
   menu.style.display = "none";
   info.style.display = "block";
-  info.innerHTML = " Click to start ";
+  info.innerHTML = " Click to start";
 
   info.addEventListener("click", function () {
     camControl.lock();
   });
 
   camControl.addEventListener("lock", function () {
-    info.style.display = "none";
+    info.innerHTML =
+      "You can move the camera while the tour guide is waving or dancing.";
   });
 
   camControl.addEventListener("unlock", function () {
-    info.style.display = "block";
+    info.innerHTML = " Click to start";
     camera.position.x = -280.0;
     camera.position.y = 120.0;
     camera.position.z = -50.0;
@@ -482,7 +483,7 @@ function render() {
       if (camera.position.y >= 2030.0) camera.position.y = 2030.0;
       else if (camera.position.y <= 4) camera.position.y = 4;
       if (camera.position.z >= 565.0) camera.position.z = 565.0;
-      else if (camera.position.z <= -640.0) camera.position.z = -640.0;
+      else if (camera.position.z <= -630.0) camera.position.z = -630.0;
 
       camControl.update(delta);
       renderer.render(scene, camera);
