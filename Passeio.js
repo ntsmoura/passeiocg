@@ -1,5 +1,3 @@
-// Controle de camera com GUI.
-
 import * as THREE from "three";
 import { MTLLoader } from "./Assets/scripts/three.js/examples/jsm/loaders/MTLLoader.js";
 import { OBJLoader } from "./Assets/scripts/three.js/examples/jsm/loaders/OBJLoader.js";
@@ -31,10 +29,6 @@ const clock = new THREE.Clock();
 let tourClock;
 const rendSize = new THREE.Vector2();
 
-/// ***************************************************************
-/// ***                                                          **
-/// ***************************************************************
-
 function main() {
   renderer = new THREE.WebGLRenderer({ logarithmicDepthBuffer: true });
 
@@ -60,6 +54,21 @@ function main() {
   const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
   scene.add(ambientLight);
 
+  //Loading background cubemap texture
+
+  const path = "./Assets/textures/";
+  const textCubeMap = [
+    path + "castle_posx.jpg",
+    path + "castle_negx.jpg",
+    path + "castle_posy.jpg",
+    path + "castle_negy.jpg",
+    path + "castle_posz.jpg",
+    path + "castle_negz.jpg",
+  ];
+
+  const textureCube = new THREE.CubeTextureLoader().load(textCubeMap);
+  scene.background = textureCube;
+
   loadRobot();
 
   buildScene();
@@ -69,182 +78,16 @@ function main() {
   render();
 }
 
-/// ***************************************************************
-/// **                                                           **
-/// ***************************************************************
+//Scene building and sponza model loading related methods
 
-function onProgress(xhr) {
-  if (xhr.lengthComputable) {
-    const percentComplete = (xhr.loaded / xhr.total) * 100;
-    let loading = document.getElementById("info");
-    if (percentComplete < 100) {
-      loading.innerHTML = `<p>Baixando... ${Math.round(
-        percentComplete,
-        2
-      )}%.<p>`;
-    } else {
-      loading.style.display = "none";
-    }
-  }
-}
-
-/// ***************************************************************
-/// **                                                           **
-/// ***************************************************************
-
-function loadRobot() {
-  const gltfLoader = new GLTFLoader();
-  gltfLoader.load(
-    "./Assets/Models/GLTF/Expressive Robot/RobotExpressive.glb",
-    function (gltf) {
-      gltfScene = gltf.scene;
-      robot = gltf.scene.children[0];
-
-      robot.name = "robot";
-
-      robot.position.set(160, 0, -40.0);
-      robot.scale.set(25, 25, 25);
-      robot.lookAt(new THREE.Vector3(1200, 0.0, -20.0));
-
-      robot.visible = false;
-
-      mixer = new THREE.AnimationMixer(gltf.scene);
-
-      actions = {};
-
-      for (let i = 0; i < gltf.animations.length; i++) {
-        const clip = gltf.animations[i];
-        const action = mixer.clipAction(clip);
-        actions[clip.name] = action;
-      }
-
-      scene.add(gltf.scene);
-    }
-  );
-}
-
-function resetRobot() {
-  robot.visible = false;
-  robot.position.set(160, 0, -40.0);
-  robot.lookAt(new THREE.Vector3(1200, 0.0, -20.0));
-  mixer.stopAllAction();
-  mixer.update(clock.getDelta());
-}
-
-function moveRobotX(signal, delta, speed, initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < maxTime)) {
-    let actualRobotPosition = robot.position;
-    robot.position.set(
-      actualRobotPosition.x + delta * speed * signal,
-      actualRobotPosition.y,
-      actualRobotPosition.z
-    );
-    actions["Walking"].play();
-    activeAction = 1;
-  }
-}
-
-function moveRobotY(signal, delta, speed, initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < maxTime)) {
-    let actualRobotPosition = robot.position;
-    robot.position.set(
-      actualRobotPosition.x,
-      actualRobotPosition.y + delta * speed * signal,
-      actualRobotPosition.z
-    );
-    actions["ThumbsUp"].play();
-    activeAction = 1;
-  }
-}
-
-function moveRobotZ(signal, delta, speed, initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < maxTime)) {
-    let actualRobotPosition = robot.position;
-    robot.position.set(
-      actualRobotPosition.x,
-      actualRobotPosition.y,
-      actualRobotPosition.z + delta * speed * signal
-    );
-    actions["Walking"].play();
-    activeAction = 1;
-  }
-}
-
-function robotLookAt(x, y, z, initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < maxTime)) {
-    robot.lookAt(new THREE.Vector3(x, y, z));
-    actions["Walking"].play();
-    activeAction = 1;
-  }
-}
-
-function robotAction(action, initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < maxTime)) {
-    actions[action].play();
-    activeAction = 1;
-  }
-}
-
-function moveCameraTourForward(signal, delta, speed, initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < maxTime)) {
-    camControl.moveForward(delta * speed * signal);
-  }
-}
-
-function moveCameraTourRight(signal, delta, speed, initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < maxTime)) {
-    camControl.moveRight(delta * speed * signal);
-  }
-}
-
-function moveCameraTourUp(signal, delta, speed, initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < maxTime)) {
-    camera.position.y += delta * speed * signal;
-    camera.updateProjectionMatrix();
-  }
-}
-
-function changeCameraTourLook(x, y, z, initTime) {
-  let actual = tourClock.getElapsedTime();
-  if ((actual > initTime) & (actual - initTime < 0.2)) {
-    camera.lookAt(new THREE.Vector3(x, y, z));
-    camera.updateProjectionMatrix();
-  }
-}
-
-function unlockCameraTour(initTime, maxTime) {
-  let actual = tourClock.getElapsedTime();
-  if (actual > initTime) {
-    if (actual - initTime < maxTime) camControl.pointerSpeed = 1;
-    else camControl.pointerSpeed = 0;
-  }
-}
-
-function resetTour(initTime) {
-  let actual = tourClock.getElapsedTime();
-  if (actual > initTime) {
-    camControl.unlock();
-  }
-}
-
+//Builds scene by loading the sponza model
 function buildScene() {
   var objMTL = new MTLLoader();
   objMTL.setPath("./Assets/Models/OBJ/sponza/");
   objMTL.load("sponza.mtl", loadMaterials);
 }
 
-/// ***************************************************************
-/// **                                                           **
-/// ***************************************************************
-
+//Loads sponza model materials
 function loadMaterials(materials) {
   materials.preload();
 
@@ -255,10 +98,7 @@ function loadMaterials(materials) {
   objLoader.load("sponza.obj", loadMesh, onProgress);
 }
 
-/// ***************************************************************
-/// **                                                           **
-/// ***************************************************************
-
+//Adds sponza model to the scene
 function loadMesh(object) {
   object.name = "cena";
 
@@ -267,9 +107,23 @@ function loadMesh(object) {
   ajusteCamera();
 }
 
-/// ***************************************************************
-/// ***                                                          **
-/// ***************************************************************
+//Shows the sponza model download progress
+function onProgress(xhr) {
+  if (xhr.lengthComputable) {
+    const percentComplete = (xhr.loaded / xhr.total) * 100;
+    let loading = document.getElementById("info");
+    if (percentComplete < 100) {
+      loading.innerHTML = `<p>Downloading... ${Math.round(
+        percentComplete,
+        2
+      )}%.<p>`;
+    } else {
+      loading.style.display = "none";
+    }
+  }
+}
+
+//Adjusts camera properties, creates keyboard events and initiates "A pé" controller configurations
 function ajusteCamera() {
   var obj = scene.getObjectByName("cena");
 
@@ -341,6 +195,9 @@ function ajusteCamera() {
   initCameraPe();
 }
 
+//GUI related methods
+
+//Initiates GUI component
 function initGUI() {
   var controls = { Passeio: "A pé" };
 
@@ -350,6 +207,7 @@ function initGUI() {
   gui.open();
 }
 
+//Triggered when type of "Passeio" is changed and changes the current camera and controller configurations
 function changeCamera(val) {
   camera.position.x = -280.0;
   camera.position.y = 120.0;
@@ -362,6 +220,9 @@ function changeCamera(val) {
   else if (val == "Visita Guiada") initCameraVisita();
 }
 
+//Camera mode related methods
+
+//Initiates the "A pé" mode by configurating PointerLock controller
 function initCameraPe() {
   resetRobot();
   moveForward = false;
@@ -372,7 +233,6 @@ function initCameraPe() {
 
   typeCamera = "A pé";
 
-  //Controle de Camera Visia a Pe
   camControl = new PointerLockControls(camera, document.body);
 
   camControl.pointerSpeed = 1.0;
@@ -395,6 +255,7 @@ function initCameraPe() {
   });
 }
 
+//Initiates "Drone" mode by configurating FirstPerson controller
 function initCameraDrone() {
   resetRobot();
   const menu = document.getElementById("menu");
@@ -416,6 +277,7 @@ function initCameraDrone() {
   camControl.lookSpeed = 0.1;
 }
 
+//Initiates "Visita Guiada" mode by configurating PointerLock controller and robot's properties
 function initCameraVisita() {
   moveForward = false;
   moveBackward = false;
@@ -425,7 +287,6 @@ function initCameraVisita() {
   typeCamera = "Visita Guiada";
   robot.visible = true;
 
-  //Controle de Camera Visia a Pe
   camControl = new PointerLockControls(camera, document.body);
 
   const menu = document.getElementById("menu");
@@ -464,6 +325,167 @@ function initCameraVisita() {
   activeAction = 0;
 }
 
+//Robot related methods
+
+//Loads robot gltf model and animations
+function loadRobot() {
+  const gltfLoader = new GLTFLoader();
+  gltfLoader.load(
+    "./Assets/Models/GLTF/Expressive Robot/RobotExpressive.glb",
+    function (gltf) {
+      gltfScene = gltf.scene;
+      robot = gltf.scene.children[0];
+
+      robot.name = "robot";
+
+      robot.position.set(160, 0, -40.0);
+      robot.scale.set(25, 25, 25);
+      robot.lookAt(new THREE.Vector3(1200, 0.0, -20.0));
+
+      robot.visible = false;
+
+      mixer = new THREE.AnimationMixer(gltf.scene);
+
+      actions = {};
+
+      for (let i = 0; i < gltf.animations.length; i++) {
+        const clip = gltf.animations[i];
+        const action = mixer.clipAction(clip);
+        actions[clip.name] = action;
+      }
+
+      scene.add(gltf.scene);
+    }
+  );
+}
+
+//Resets robot to initial position, hide it and stop all actions
+function resetRobot() {
+  robot.visible = false;
+  robot.position.set(160, 0, -40.0);
+  robot.lookAt(new THREE.Vector3(1200, 0.0, -20.0));
+  mixer.stopAllAction();
+  mixer.update(clock.getDelta());
+}
+
+//Moves robot model over X axis based on signal of the movement, time per frame, defined speed, initial time of the animation and max time duration of the animation
+function moveRobotX(signal, delta, speed, initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < maxTime)) {
+    let actualRobotPosition = robot.position;
+    robot.position.set(
+      actualRobotPosition.x + delta * speed * signal,
+      actualRobotPosition.y,
+      actualRobotPosition.z
+    );
+    actions["Walking"].play();
+    activeAction = 1;
+  }
+}
+
+//Moves robot model over Y axis based on signal of the movement, time per frame, defined speed, initial time of the animation and max time duration of the animation
+function moveRobotY(signal, delta, speed, initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < maxTime)) {
+    let actualRobotPosition = robot.position;
+    robot.position.set(
+      actualRobotPosition.x,
+      actualRobotPosition.y + delta * speed * signal,
+      actualRobotPosition.z
+    );
+    actions["ThumbsUp"].play();
+    activeAction = 1;
+  }
+}
+
+//Moves robot model over Z axis based on signal of the movement, time per frame, defined speed, initial time of the animation and max time duration
+function moveRobotZ(signal, delta, speed, initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < maxTime)) {
+    let actualRobotPosition = robot.position;
+    robot.position.set(
+      actualRobotPosition.x,
+      actualRobotPosition.y,
+      actualRobotPosition.z + delta * speed * signal
+    );
+    actions["Walking"].play();
+    activeAction = 1;
+  }
+}
+
+//Sets the direction of robot's focus to defined x, y, z position. Requires the initial time of the animation and the max time duration
+function robotLookAt(x, y, z, initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < maxTime)) {
+    robot.lookAt(new THREE.Vector3(x, y, z));
+    actions["Walking"].play();
+    activeAction = 1;
+  }
+}
+
+//Starts one of the predefined robot's animations. Requires the action descriptor, the inial time of the animation and the max time duration
+function robotAction(action, initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < maxTime)) {
+    actions[action].play();
+    activeAction = 1;
+  }
+}
+
+//Tour camera related methods
+
+//Moves the tour camera forward or backward, based on signal of the movement, time per frame, defined speed, initial time of the animation and max time duration
+function moveCameraTourForward(signal, delta, speed, initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < maxTime)) {
+    camControl.moveForward(delta * speed * signal);
+  }
+}
+
+//Moves the tour camera to the right or left, based on signal of the movement, time per frame, defined speed, initial time of the animation and max time duration
+function moveCameraTourRight(signal, delta, speed, initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < maxTime)) {
+    camControl.moveRight(delta * speed * signal);
+  }
+}
+
+//Moves the tour camera up or down, based on signal of the movement, time per frame, defined speed, initial time of the animation and max time duration
+function moveCameraTourUp(signal, delta, speed, initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < maxTime)) {
+    camera.position.y += delta * speed * signal;
+    camera.updateProjectionMatrix();
+  }
+}
+
+//Changes the tour camera lookAt property to x, y, z position. Requires the initial time of the animation
+function changeCameraTourLook(x, y, z, initTime) {
+  let actual = tourClock.getElapsedTime();
+  if ((actual > initTime) & (actual - initTime < 0.2)) {
+    camera.lookAt(new THREE.Vector3(x, y, z));
+    camera.updateProjectionMatrix();
+  }
+}
+
+//Unlock the tour camera pointer movements for a period of time. Requires the initial and max time duration of the period
+function unlockCameraTour(initTime, maxTime) {
+  let actual = tourClock.getElapsedTime();
+  if (actual > initTime) {
+    if (actual - initTime < maxTime) camControl.pointerSpeed = 1;
+    else camControl.pointerSpeed = 0;
+  }
+}
+
+//Resets the tour by unlocking tour camera, that will trigger pointerLockController unlock event. Requires initial time
+function resetTour(initTime) {
+  let actual = tourClock.getElapsedTime();
+  if (actual > initTime) {
+    camControl.unlock();
+  }
+}
+
+//Render function
 function render() {
   requestAnimationFrame(render);
   if (typeCamera != "Visita Guiada") {
@@ -547,9 +569,5 @@ function render() {
     }
   }
 }
-
-/// ***************************************************************
-/// ***************************************************************
-/// ***************************************************************
 
 main();
