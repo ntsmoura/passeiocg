@@ -96,6 +96,8 @@ Esta é uma aplicação feita com ThreeJs para a disciplina MATE65 - Computaçã
 - Modo "A pé" - Remete a uma pessoa caminhando dentro do modelo
 - Modo "Drone" - Remete aos graus de liberdade de um drone voando sobre o modelo
 - Modo "Visita Guiada" - Remete a uma visita automática sobre o modelo com pontos pré-definidos e um guia amigável
+	
+Obs: É possível utilizar a aplicação através do [link](https://ntsmoura.github.io/passeiocg/)
 
 <a id="tecnologias"></a>
 
